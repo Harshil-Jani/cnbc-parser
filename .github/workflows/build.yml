@@ -1,0 +1,78 @@
+# GitHub Actions workflow configuration file
+
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # Trigger the workflow when a tag matching the pattern v*.*.* is pushed
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }} # Define the operating system on which the job runs
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest] # Define the operating system matrix
+        arch: [x86_64, aarch64] # Define the architecture matrix
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Check out the repository code
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1 # Set up the Rust toolchain
+        with:
+          toolchain: stable # Use the stable Rust toolchain
+          profile: minimal # Use the minimal configuration file
+          override: true # Override any existing Rust toolchain settings
+
+      - name: Build project
+        run: cargo build --release # Build the release version of the project
+
+      # Upload build artifacts for Linux x86_64 platform
+      - name: Upload artifact (Linux)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-latest-cnbc-parser
+          path: target/release/cnbc-parser
+
+      # Upload build artifacts for Linux aarch64 platform
+      - name: Upload artifact (Linux aarch64)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'aarch64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-latest-cnbc-parser-aarch64
+          path: target/release/cnbc-parser
+
+      # Upload build artifacts for macOS x86_64 platform
+      - name: Upload artifact (macOS)
+        if: matrix.os == 'macos-latest' && matrix.arch == 'x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-latest-cnbc-parser
+          path: target/release/cnbc-parser
+
+      # Upload build artifacts for macOS aarch64 platform
+      - name: Upload artifact (macOS aarch64)
+        if: matrix.os == 'macos-latest' && matrix.arch == 'aarch64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-latest-cnbc-parser-aarch64
+          path: target/release/cnbc-parser
+
+      # Upload build artifacts for Windows x86_64 platform
+      - name: Upload artifact (Windows)
+        if: matrix.os == 'windows-latest' && matrix.arch == 'x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-latest-cnbc-parser
+          path: target/release/cnbc-parser.exe
+
+      # Upload build artifacts for Windows aarch64 platform
+      - name: Upload artifact (Windows aarch64)
+        if: matrix.os == 'windows-latest' && matrix.arch == 'aarch64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-latest-cnbc-parser-aarch64
+          path: target/release/cnbc-parser.exe
